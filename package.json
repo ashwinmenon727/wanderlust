@@ -1,0 +1,20 @@
+{
+  "name": "wanderlust-travel-agency",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-ready luxury travel agency web application",
+  "scripts": {
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "build:server": "npm --prefix server run build",
+    "build:client": "npm --prefix client run build",
+    "build": "npm run build:server && npm run build:client",
+    "test": "npm --prefix server run test && npm --prefix client run test",
+    "db:push": "npm --prefix server run db:push",
+    "db:seed": "npm --prefix server run seed",
+    "admin:create": "npm --prefix server run admin:create"
+  },
+  "keywords": ["travel", "react", "express", "prisma", "luxury-travel"],
+  "author": "Antigravity Engineering",
+  "license": "ISC"
+}

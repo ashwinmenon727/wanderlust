@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Accessible visible focus states */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid #D97706;
+    outline-offset: 2px;
+  }
+}
+
+/* Glassmorphism helpers */
+.glass-navy {
+  background: rgba(10, 25, 47, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-ivory {
+  background: rgba(253, 251, 247, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(217, 119, 6, 0.15);
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Subtle luxury scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F8F6F0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Explicit Luxury Theme Utilities (ensures 100% contrast & prevents unstyled elements) */
+.bg-luxury-navy {
+  background-color: #0A192F !important;
+}
+.bg-luxury-navy-light {
+  background-color: #0F264A !important;
+}
+.text-luxury-navy {
+  color: #0A192F !important;
+}
+.border-luxury-navy {
+  border-color: #0A192F !important;
+}
+.bg-luxury-gold {
+  background-color: #D97706 !important;
+}
+.text-luxury-gold {
+  color: #D97706 !important;
+}
+.border-luxury-gold {
+  border-color: #D97706 !important;
+}
+.bg-luxury-teal {
+  background-color: #0D9488 !important;
+}
+.bg-luxury-teal-dark {
+  background-color: #0F766E !important;
+}
+.text-luxury-teal {
+  color: #0D9488 !important;
+}
+.border-luxury-teal {
+  border-color: #0D9488 !important;
+}

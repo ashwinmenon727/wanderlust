@@ -1,0 +1,366 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("ADMIN")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([email])
+}
+
+model Destination {
+  id                  String        @id @default(uuid())
+  slug                String        @unique
+  name                String
+  country             String
+  continent           String
+  region              String        @default("")
+  tagline             String
+  description         String
+  heroImage           String
+  gallery             String[]
+  attractions         String[]      @default([])
+  recommendedDuration String        @default("5-7 Days")
+  bestTimeToVisit     String
+  language            String
+  currency            String
+  rating              Float         @default(5.0)
+  reviewsCount        Int           @default(0)
+  isFeatured          Boolean       @default(false)
+  isPublished         Boolean       @default(true)
+  isArchived          Boolean       @default(false)
+  startingPrice       Float         @default(0)
+  startingPriceCents  Int           @default(0)
+  highlights          String[]
+  seoTitle            String?
+  seoDescription      String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  hotels              Hotel[]
+  packages            TourPackage[]
+  packageDestinations PackageDestination[]
+  inquiries           Inquiry[]
+
+  @@index([slug])
+  @@index([continent])
+  @@index([region])
+  @@index([isFeatured])
+  @@index([isPublished])
+  @@index([isArchived])
+}
+
+model Hotel {
+  id                     String                          @id @default(uuid())
+  destinationId          String
+  destination            Destination                     @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  name                   String
+  slug                   String                          @unique
+  address                String
+  description            String
+  contactPhone           String?
+  contactEmail           String?
+  website                String?
+  verifiedStarClass      Int?
+  amenities              String[]                        @default([])
+  checkInTime            String                          @default("14:00")
+  checkOutTime           String                          @default("11:00")
+  mealPlans              String[]                        @default([])
+  accessibilityInfo      String?
+  cancellationConditions String?
+  isPublished            Boolean                         @default(true)
+  isArchived             Boolean                         @default(false)
+  photos                 String[]                        @default([])
+  createdAt              DateTime                        @default(now())
+  updatedAt              DateTime                        @updatedAt
+
+  roomTypes              RoomType[]
+  packageLinks           TourPackageHotel[]
+  allocations            BookingAccommodationAllocation[]
+
+  @@index([destinationId])
+  @@index([slug])
+  @@index([isPublished])
+  @@index([isArchived])
+}
+
+model RoomType {
+  id                     String                          @id @default(uuid())
+  hotelId                String
+  hotel                  Hotel                           @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  name                   String
+  slug                   String
+  description            String
+  maxOccupancy           Int                             @default(2)
+  bedConfiguration       String
+  amenities              String[]                        @default([])
+  mealPlanOptions        String[]                        @default([])
+  priceCents             Int
+  currency               String                          @default("USD")
+  availabilityStatus     String                          @default("AVAILABLE")
+  taxesFeesCents         Int                             @default(0)
+  cancellationConditions String?
+  inventoryCount         Int                             @default(10)
+  isPublished            Boolean                         @default(true)
+  isArchived             Boolean                         @default(false)
+  createdAt              DateTime                        @default(now())
+  updatedAt              DateTime                        @updatedAt
+
+  allocations            BookingAccommodationAllocation[]
+
+  @@unique([hotelId, slug])
+  @@index([hotelId])
+  @@index([isPublished])
+  @@index([isArchived])
+}
+
+model TourPackage {
+  id                 String             @id @default(uuid())
+  slug               String             @unique
+  title              String
+  destinationId      String
+  destination        Destination        @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  durationDays       Int
+  durationNights     Int
+  price              Float              @default(0)
+  priceCents         Int                @default(0)
+  discountPrice      Float?
+  discountPriceCents Int?
+  pricingBasis       String             @default("per_person")
+  currency           String             @default("USD")
+  isSamplePrice      Boolean            @default(true)
+  category           String
+  difficulty         String             @default("MODERATE")
+  maxGroupSize       Int                @default(12)
+  overview           String
+  itinerary          Json
+  includes           String[]
+  excludes           String[]
+  transport          String?
+  activities         String[]           @default([])
+  heroImage          String
+  gallery            String[]
+  isFeatured         Boolean            @default(false)
+  isPublished        Boolean            @default(true)
+  isArchived         Boolean            @default(false)
+  cancellationPolicy String             @default("Free cancellation up to 30 days prior to departure.")
+  rating             Float              @default(5.0)
+  reviewsCount       Int                @default(0)
+  departureDates     String[]
+  seoTitle           String?
+  seoDescription     String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  hotels              TourPackageHotel[]
+  itineraryEntries    ItineraryEntry[]
+  packageDestinations PackageDestination[]
+  inquiries           Inquiry[]
+
+  @@index([slug])
+  @@index([destinationId])
+  @@index([category])
+  @@index([isFeatured])
+  @@index([isPublished])
+  @@index([isArchived])
+}
+
+model ItineraryEntry {
+  id            String      @id @default(uuid())
+  packageId     String
+  package       TourPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  dayNumber     Int
+  title         String
+  description   String
+  locations     String[]    @default([])
+  activities    String[]    @default([])
+  mealsIncluded String      @default("Breakfast")
+  accommodation String?
+  orderIndex    Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([packageId, dayNumber])
+  @@index([packageId])
+  @@index([dayNumber])
+}
+
+model PackageDestination {
+  id            String      @id @default(uuid())
+  packageId     String
+  destinationId String
+  orderIndex    Int         @default(0)
+
+  package       TourPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+
+  @@unique([packageId, destinationId])
+  @@index([packageId])
+  @@index([destinationId])
+}
+
+model TourPackageHotel {
+  id         String      @id @default(uuid())
+  packageId  String
+  hotelId    String
+  stageName  String?
+  nights     Int         @default(1)
+  orderIndex Int         @default(0)
+
+  package    TourPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  hotel      Hotel       @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  @@unique([packageId, hotelId, orderIndex])
+  @@index([packageId])
+  @@index([hotelId])
+}
+
+model Inquiry {
+  id                     String                           @id @default(uuid())
+  reference              String                           @unique
+  customerName           String
+  email                  String
+  phone                  String
+  destinationId          String?
+  destination            Destination?                     @relation(fields: [destinationId], references: [id], onDelete: SetNull)
+  packageId              String?
+  package                TourPackage?                     @relation(fields: [packageId], references: [id], onDelete: SetNull)
+  departureDate          String
+  returnDate             String
+  adults                 Int
+  children               Int                              @default(0)
+  travelType             String
+  budget                 String
+  accommodationPref      String
+  additionalRequirements String?
+  preferredContact       String                           @default("EMAIL")
+  privacyConsent         Boolean                          @default(false)
+  status                 String                           @default("NEW_INQUIRY")
+  totalPriceCents        Int?
+  currency               String                           @default("USD")
+  amountPaidCents        Int                              @default(0)
+  balanceCents           Int?
+  paymentStatus          String                           @default("PENDING")
+  paymentDueDate         String?
+  confirmedAt            DateTime?
+  cancelledAt            DateTime?
+  customerInstructions   String?
+  internalNotes          String?
+  followUpDate           String?
+  createdAt              DateTime                         @default(now())
+  updatedAt              DateTime                         @updatedAt
+
+  accommodationAllocations BookingAccommodationAllocation[]
+  transportAllocations     BookingTransportAllocation[]
+  notificationLogs         EmailNotificationLog[]
+
+  @@index([reference])
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+  @@index([destinationId])
+  @@index([packageId])
+}
+
+model BookingAccommodationAllocation {
+  id                      String      @id @default(uuid())
+  inquiryId               String
+  inquiry                 Inquiry     @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  hotelId                 String
+  hotel                   Hotel       @relation(fields: [hotelId], references: [id], onDelete: Restrict)
+  roomTypeId              String
+  roomType                RoomType    @relation(fields: [roomTypeId], references: [id], onDelete: Restrict)
+  checkInDate             String
+  checkOutDate            String
+  nights                  Int
+  roomCount               Int         @default(1)
+  occupancyPerRoom        Int         @default(2)
+  mealPlan                String      @default("BED_AND_BREAKFAST")
+  specialRequests         String?
+  status                  String      @default("PENDING")
+  supplierConfirmationRef String?
+  priceCents              Int         @default(0)
+  createdAt               DateTime    @default(now())
+  updatedAt               DateTime    @updatedAt
+
+  @@index([inquiryId])
+  @@index([hotelId])
+  @@index([roomTypeId])
+  @@index([status])
+}
+
+model BookingTransportAllocation {
+  id                  String   @id @default(uuid())
+  inquiryId           String
+  inquiry             Inquiry  @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  transportType       String   @default("AIRPORT_TRANSFER")
+  pickupLocation      String
+  pickupDateTime      String
+  dropoffLocation     String
+  flightNumber        String?
+  provider            String?
+  meetingInstructions String?
+  status              String   @default("PENDING")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([inquiryId])
+  @@index([status])
+}
+
+model EmailNotificationLog {
+  id             String    @id @default(uuid())
+  inquiryId      String
+  inquiry        Inquiry   @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  recipientEmail String
+  recipientType  String
+  templateName   String
+  notificationType String  @default("INQUIRY_RECEIVED")
+  idempotencyKey String?   @unique
+  bookingReference String?
+  htmlContent    String?
+  textContent    String?
+  status         String
+  attempts       Int       @default(1)
+  lastError      String?
+  lastAttemptAt  DateTime?
+  deliveredAt    DateTime?
+  sentAt         DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([inquiryId])
+  @@index([status])
+  @@index([notificationType])
+  @@index([bookingReference])
+  @@index([idempotencyKey])
+}
+
+model Testimonial {
+  id           String   @id @default(uuid())
+  customerName String
+  location     String
+  avatarUrl    String
+  rating       Int      @default(5)
+  reviewText   String
+  tripTitle    String
+  tripDate     String
+  isFeatured   Boolean  @default(true)
+  isApproved   Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([isFeatured])
+  @@index([isApproved])
+}
